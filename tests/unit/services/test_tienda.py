@@ -6,6 +6,7 @@ from unittest.mock import Mock
 from services.tienda import TiendaMuebles
 from models.concretos.silla import Silla
 from models.concretos.mesa import Mesa
+from models.composicion.comedor import Comedor
 
 
 class TestTiendaMuebles:
@@ -87,3 +88,21 @@ class TestTiendaMuebles:
         tienda.agregar_mueble(silla)
         reporte = tienda.generar_reporte_inventario()
         assert "REPORTE" in reporte
+
+    def test_agregar_comedor(self, tienda):
+        mock_comedor = Mock(spec=Comedor)
+        mock_comedor.nombre = "Comedor Mock"
+        resultado = tienda.agregar_comedor(mock_comedor)
+        assert "exitosamente" in resultado.lower()
+
+    def test_agregar_comedor_none(self, tienda):
+        resultado = tienda.agregar_comedor(None)
+        assert "error" in resultado.lower()
+
+    def test_realizar_venta_con_descuento(self, tienda):
+        s = Silla("Silla Mock", "Madera", "Café", 100.0)
+        tienda.agregar_mueble(s)
+        tienda.aplicar_descuento("sillas", 10)
+        venta = tienda.realizar_venta(s, "Pedro")
+        assert venta["descuento"] == 10.0
+        assert venta["precio_final"] < 100.0
